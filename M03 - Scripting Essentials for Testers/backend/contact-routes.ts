@@ -40,10 +40,15 @@ router.delete(
   (req, res) => {
     const { contactId } = req.params;
 
-    const contacts = removeContactById(contactId);
+    const removed = removeContactById(contactId);
+
+    if (!removed) {
+      res.sendStatus(404);
+      return;
+    }
 
     res.status(200);
-    res.json({ contacts });
+    res.json({});
   }
 );
 
