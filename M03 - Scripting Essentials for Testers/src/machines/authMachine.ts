@@ -35,6 +35,7 @@ export type AuthMachineEvents =
 export interface AuthMachineContext {
   user?: User;
   message?: string;
+  authProfile?: "session" | "provider";
 }
 
 export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMachineEvents>(
@@ -44,6 +45,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
     context: {
       user: undefined,
       message: undefined,
+      authProfile: undefined,
     },
     states: {
       unauthorized: {
@@ -81,7 +83,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       refreshing: {
         invoke: {
           src: "getUserProfile",
-          onDone: { target: "authorized", actions: "setUserProfile" },
+          onDone: { target: "authorized", actions: "setSessionUserProfile" },
           onError: { target: "unauthorized", actions: "onError" },
         },
         on: {
@@ -91,7 +93,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       google: {
         invoke: {
           src: "getGoogleUserProfile",
-          onDone: { target: "authorized", actions: "setUserProfile" },
+          onDone: { target: "authorized", actions: "setProviderUserProfile" },
           onError: { target: "unauthorized", actions: "onError" },
         },
         on: {
@@ -116,7 +118,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       auth0: {
         invoke: {
           src: "getAuth0UserProfile",
-          onDone: { target: "authorized", actions: "setUserProfile" },
+          onDone: { target: "authorized", actions: "setProviderUserProfile" },
           onError: { target: "unauthorized", actions: "onError" },
         },
         on: {
@@ -126,7 +128,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       okta: {
         invoke: {
           src: "getOktaUserProfile",
-          onDone: { target: "authorized", actions: "setUserProfile" },
+          onDone: { target: "authorized", actions: "setProviderUserProfile" },
           onError: { target: "unauthorized", actions: "onError" },
         },
         on: {
@@ -136,7 +138,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       cognito: {
         invoke: {
           src: "getCognitoUserProfile",
-          onDone: { target: "authorized", actions: "setUserProfile" },
+          onDone: { target: "authorized", actions: "setProviderUserProfile" },
           onError: { target: "unauthorized", actions: "onError" },
         },
         on: {
@@ -246,13 +248,20 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       },
       resetUser: assign((ctx: any, event: any) => ({
         user: undefined,
+        authProfile: undefined,
       })),
-      setUserProfile: assign((ctx: any, event: any) => ({
+      setSessionUserProfile: assign((ctx: any, event: any) => ({
         user: event.data.user,
+        authProfile: "session",
+      })),
+      setProviderUserProfile: assign((ctx: any, event: any) => ({
+        user: event.data.user,
+        authProfile: "provider",
       })),
       onSuccess: assign((ctx: any, event: any) => ({
         user: event.data.user,
         message: undefined,
+        authProfile: "session",
       })),
       onError: assign((ctx: any, event: any) => ({
         message: event.data.message,
@@ -279,3 +288,13 @@ export const authService = interpret(authMachine)
     }
   })
   .start(resolvedState);
+
+const restoredContext = resolvedState?.context as AuthMachineContext | undefined;
+const isRestoredSessionProfile =
+  restoredContext?.authProfile === "session" ||
+  (restoredContext?.authProfile === undefined &&
+    typeof restoredContext?.user?.balance === "number");
+
+if (resolvedState?.matches("authorized") && isRestoredSessionProfile) {
+  authService.send("REFRESH");
+}

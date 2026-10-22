@@ -4,10 +4,12 @@ import {
   bySelLike,
   textbox,
   helperText,
+  loginByXstate,
   loginViaForm,
   signUpViaForm,
   openSignUp,
   signOut,
+  stubApi,
   waitForApi,
   waitForListLoaded,
   typeThenClear,
@@ -24,6 +26,25 @@ test.describe("User Sign-up and Login", () => {
   test("should redirect to the home page after login", async ({ page, users }) => {
     await loginViaForm(page, users[0].username, env.defaultPassword, { rememberUser: true });
     await expect(page).toHaveURL(new RegExp(`^${env.baseURL}/?$`));
+  });
+
+  test("should redirect to signin after the session auth check returns unauthorized on reload", async ({
+    page,
+    users,
+  }) => {
+    await loginByXstate(page, users[0].username);
+    await stubApi(
+      page,
+      { method: "GET", path: "/checkAuth" },
+      { error: "User is unauthorized" },
+      401,
+    );
+
+    const authCheck = waitForApi(page, { method: "GET", path: "/checkAuth" });
+    await page.reload();
+
+    expect((await authCheck).status()).toBe(401);
+    await expect(page).toHaveURL(/\/signin$/);
   });
 
   test("should remember a user for 30 days after login", async ({ page, users }) => {
