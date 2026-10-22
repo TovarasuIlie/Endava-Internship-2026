@@ -45,6 +45,11 @@ export default defineConfig({
       },
     },
     {
+      name: "ui-tablet",
+      testDir: "./tests/ui",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 500, height: 800 } },
+    },
+    {
       // Cross-layer user journeys (decision D-006): UI steps + API setup/verification.
       name: "e2e",
       testDir: "./tests/e2e",

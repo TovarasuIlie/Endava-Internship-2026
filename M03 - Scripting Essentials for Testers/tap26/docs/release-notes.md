@@ -7,3 +7,7 @@ User-visible changes to the Real World App made through TAP26 (newest first). Ge
 ## TAP26-Junior 1.0.0 baseline — 2026-10-16
 - No application changes yet. Baseline: Cypress Real World App `develop` + Playwright framework (`playwright/`)
   + TAP26-Junior framework. Known API defects are catalogued in `tap26/knowledge/known-issues.md`.
+
+## Test tooling — 2026-10-22
+- Added the Playwright `ui-tablet` project at 500×800, with the `test:ui:tablet` script, to exercise
+  responsive UI behavior at an intermediate viewport.

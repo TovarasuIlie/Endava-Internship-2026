@@ -142,6 +142,7 @@ The workspace defines tasks for the common scripts, so you can run them without 
 | TAP: Test API | `npx playwright test --project=api` (in `playwright/`) |
 | TAP: Test UI (desktop) | `npx playwright test --project=ui-desktop` |
 | TAP: Test UI (mobile) | `npx playwright test --project=ui-mobile` |
+| TAP: Test UI (tablet) | `npx playwright test --project=ui-tablet` (500×800) |
 | TAP: Test all | `npx playwright test` (all projects, including `e2e`) |
 | TAP: Playwright report | `npx playwright show-report` |
 | TAP: Scan app | `node tap26/scripts/scan-app.mjs` |
@@ -183,7 +184,7 @@ Each script prints its usage when run with `--help` or no valid command.
 - [ ] `/tap-start` ran and the doctor shows no FAIL rows (or you know how to fix them)
 - [ ] The app is running and you can log in at http://localhost:3000
 - [ ] You know where the permission mode indicator is
-- [ ] You can open the Testing sidebar (Playwright extension) and see the `api`, `ui-desktop`, `ui-mobile` and `e2e` projects
+- [ ] You can open the Testing sidebar (Playwright extension) and see the `api`, `ui-desktop`, `ui-mobile`, `ui-tablet` and `e2e` projects
 
 Next: [02 Architecture](02-architecture.md) and [Lab 02 — Run the app](../labs/lab-02-run.md).
 Problems? See [13 Troubleshooting](13-troubleshooting.md).

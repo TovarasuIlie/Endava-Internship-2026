@@ -8,7 +8,7 @@ framework's own [README](../../playwright/README.md) is the detailed reference; 
 
 ```
 playwright/
-├── playwright.config.ts     projects api · ui-desktop · ui-mobile · e2e · workers 1 · UTC · traces on failure
+├── playwright.config.ts     projects api · ui-desktop · ui-mobile · ui-tablet · e2e · workers 1 · UTC · traces on failure
 ├── src/
 │   ├── config/env.ts        BASE_URL, API_URL, seed password, page size (from .env)
 │   ├── types/models.ts      User, Transaction, BankAccount, Notification…
@@ -32,10 +32,46 @@ Imports use path aliases: `@api`, `@ui`, `@fixtures/api`, `@fixtures/ui`, `@util
 | `api` | `tests/api` | none (request context) | — | `npm run test:api` |
 | `ui-desktop` | `tests/ui` | Chromium | 1280×1000 | `npm run test:ui` |
 | `ui-mobile` | `tests/ui` | Chromium | 375×667 | `npm run test:ui:mobile` |
+| `ui-tablet` | `tests/ui` | Chromium | 500×800 | `npm run test:ui:tablet` |
 | `e2e` | `tests/e2e/*.e2e.spec.ts` | Chromium | desktop | `npx playwright test --project=e2e` |
 
 `workers: 1` and `fullyParallel: false` because all tests share **one JSON database** that is re-seeded
 before every test.
+
+### Example: Alice pays Bob
+
+[`bob-sees-alice-payment.e2e.spec.ts`](../../playwright/tests/e2e/bob-sees-alice-payment.e2e.spec.ts)
+uses separate browser contexts for Alice and Bob. Alice sends $67 through the UI; Bob refreshes and
+sees the balance increase, while the test verifies the completed transaction in the database.
+
+```mermaid
+sequenceDiagram
+    actor Alice
+    actor Bob
+    participant UI as Isolated browser contexts
+    participant API
+    participant DB as Seeded database
+    participant Test
+    Alice->>UI: Sign in and send Bob $67
+    UI->>API: POST /transactions
+    API->>DB: Create completed payment and update balances
+    API-->>UI: Successful transaction response
+    UI-->>Alice: Transaction Submitted!
+    Bob->>UI: Refresh his authenticated session
+    Note over UI: Restores cached auth profile; no fresh profile request
+    UI-->>Bob: Stale cached balance is displayed
+    Test->>DB: Verify completed payment and updated balances
+```
+
+The journey currently asserts the expected refreshed balance and is marked as an expected failure
+for **KI-34** while the app restores stale cached profile data. Run it twice to check repeatability:
+
+```bash
+npm --prefix playwright run test:e2e -- --grep "Bob sees Alice" --repeat-each=2
+```
+
+It runs in the existing `e2e` project with `@e2e` and `@regression` tags. The auto-seed fixture
+resets `data/database.json` before each iteration.
 
 ## Fixtures — the heart of the framework
 
@@ -114,7 +150,7 @@ Or ask: `/tap-run-tests mobile "bank account"` — you get a summary and triage 
 
 1. Install **Playwright Test for VS Code**. Open the **Testing** sidebar (flask icon).
 2. If tests do not appear, open the Playwright section and make sure `playwright/playwright.config.ts`
-   is selected as a config, and tick the `api`, `ui-desktop`, `ui-mobile`, `e2e` projects.
+   is selected as a config, and tick the `api`, `ui-desktop`, `ui-mobile`, `ui-tablet`, `e2e` projects.
 3. Click ▶ next to a test to run it; right-click ▶ → *Debug Test* to stop on breakpoints.
 4. Tick **Show browser** to watch UI tests; use **Pick locator** to hover the app and get a locator
    (prefer turning it into `bySel(page, "<data-test>")`).

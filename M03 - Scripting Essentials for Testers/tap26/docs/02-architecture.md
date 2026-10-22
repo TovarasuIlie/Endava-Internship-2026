@@ -17,7 +17,7 @@ flows through them, and teaches the concepts behind the design.
 | 7 | Knowledge | `tap26/knowledge/` (+ `generated/`) | read by agents in "Before you start" | a map of the app so agents don't re-discover it |
 | 8 | Scripts (tools) | `tap26/scripts/*.mjs` | called via Bash | deterministic work: doctor, scan, impact, drift, servers |
 | 9 | Contract & mocks | `tap26/openapi/`, `tap26/mocks/`, `tap26/swagger/` | API work, Swagger, mocking | a single source of truth for the API |
-| 10 | Test framework | `playwright/` | test work | functional Playwright suite: api, ui-desktop, ui-mobile |
+| 10 | Test framework | `playwright/` | test work | functional Playwright suite: api, ui-desktop, ui-mobile, ui-tablet |
 
 ```mermaid
 flowchart TB

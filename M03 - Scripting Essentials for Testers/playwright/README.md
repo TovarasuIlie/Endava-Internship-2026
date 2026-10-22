@@ -13,7 +13,7 @@ yarn dev                       # UI on :3000, API on :3001
 cd playwright
 npm install
 npx playwright install chromium
-npm test                       # api + ui-desktop + ui-mobile + e2e
+npm test                       # api + ui-desktop + ui-mobile + ui-tablet + e2e
 ```
 
 | Script | What it runs |
@@ -21,6 +21,7 @@ npm test                       # api + ui-desktop + ui-mobile + e2e
 | `npm run test:api` | API specs only (no browser) |
 | `npm run test:ui` | UI specs at 1280×1000 |
 | `npm run test:ui:mobile` | UI specs at 375×667 (mobile layout) |
+| `npm run test:ui:tablet` | UI specs at 500×800 (tablet/intermediate layout) |
 | `npm run test:headed` | Desktop UI specs in a visible browser |
 | `npm run test:e2e` | End-to-end journeys (`tests/e2e`) |
 | `npm run test:contract` | OpenAPI contract tests |
@@ -49,7 +50,7 @@ Copy `.env.example` to `.env` to override defaults:
 
 ```
 playwright/
-├── playwright.config.ts      projects: api, ui-desktop, ui-mobile, e2e · workers: 1 · UTC
+├── playwright.config.ts      projects: api, ui-desktop, ui-mobile, ui-tablet, e2e · workers: 1 · UTC
 ├── src/
 │   ├── config/env.ts         frozen runtime config
 │   ├── types/models.ts       domain types (User, Transaction, …)
