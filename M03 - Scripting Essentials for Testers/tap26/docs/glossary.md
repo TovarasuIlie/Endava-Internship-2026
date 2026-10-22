@@ -40,7 +40,7 @@ Terms you will meet in TAP26, grouped by area. Domain terms for the shared memor
 | Term | Meaning |
 |---|---|
 | **Playwright** | Microsoft's browser and API test framework used in `playwright/`. |
-| **Project (Playwright)** | A named configuration: `api`, `ui-desktop`, `ui-mobile`, `e2e`. |
+| **Project (Playwright)** | A named configuration: `api`, `ui-desktop`, `ui-mobile`, `ui-tablet`, `e2e`. |
 | **Fixture** | A Playwright function that prepares a value for a test (`api`, `seed`, `db`, `users`, `me`) and cleans up. |
 | **Auto fixture** | A fixture that runs for every test without being requested (`seed`, `me`). |
 | **Locator** | Playwright's lazy handle to elements; here built with `bySel(page, "<data-test>")`. |
