@@ -13,6 +13,7 @@ import {
   openFeed,
   waitForApi,
   waitForApiJson,
+  stubApi,
   waitForFeed,
   startNewTransaction,
   searchUsersInput,
@@ -82,6 +83,24 @@ test.describe("New Transaction", () => {
     const contactAfter = await db.find("users", { id: ctx.contact.id });
     expect(contactAfter.balance).toBe(ctx.contact.balance + dollarsToCents(Number(payment.amount)));
     await expect(alertBar(page)).toHaveCount(0);
+  });
+
+  test("shows an error when a payment fails (KI-31)", async ({ page, ctx }) => {
+    test.fail(
+      true,
+      'KI-31: "Transaction Submitted!" and step 3 render before API responds; a failed payment never shows an error',
+    );
+
+    await startNewTransaction(page);
+    await selectContact(page, ctx.contact.firstName);
+    await fillTransactionForm(page, "35", "Failed payment");
+    await stubApi(page, createTransaction, { error: "Internal Server Error" }, 500);
+
+    const created = waitForApi(page, createTransaction);
+    await bySelLike(page, "submit-payment").click();
+    expect((await created).status()).toBe(500);
+
+    await expect(alertBar(page, "error")).toBeVisible();
   });
 
   test("navigates to the new transaction form, selects a user and submits a transaction request", async ({
