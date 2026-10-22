@@ -15,7 +15,7 @@ openapi: 3.0.3
 
 info:
   title: Cypress Real World App API
-  version: 1.0.0
+  version: 1.1.0
   description: |
     REST (and a tiny GraphQL) API behind the **Cypress Real World App** - a
     Venmo-style payment app used to practise test automation.
@@ -56,8 +56,8 @@ info:
     * **Validation errors** use express-validator's shape:
       `422 {"errors": [{"msg", "param", "location", "value"}]}`.
     * **Unhandled errors** (e.g. an id that does not exist where the code
-      assumes it does) produce Express's default **500 HTML** error page with a
-      stack trace - the API has no 404 handling.
+      assumes it does and has no explicit not-found handling) produce Express's
+      default **500 HTML** error page with a stack trace.
     * **Pagination** (transaction lists only) via `page` (default 1) and
       `limit` (default 10, max 50); responses carry a `pageData` object.
 
@@ -67,8 +67,9 @@ info:
       delete anyone's contacts. Only `GET /users/{userId}` checks the caller.
     * `PATCH` routes copy the **whole request body** into the stored record
       (mass assignment) - e.g. `balance` can be patched directly.
-    * Unknown ids on `PATCH /users/{id}`, `PATCH /notifications/{id}` and
-      `DELETE /contacts/{id}` are **not** no-ops - see each operation.
+    * Unknown ids on `PATCH /users/{id}` and `PATCH /notifications/{id}` are
+      **not** no-ops - see each operation. A well-formed unknown id on
+      `DELETE /contacts/{id}` returns **404** without changing contacts.
     * User objects returned by the API include the bcrypt **password hash**.
   contact:
     name: Cypress Real World App (upstream)
@@ -589,10 +590,10 @@ paths:
         contact's own `id`, not the other user's id).
 
         * **Auth needed:** yes - but no ownership check.
-        * The response body is always an **empty object** `{}` (the handler
-          returns `{contacts: undefined}`).
-        * **Danger (verified bug):** a well-formed id that does not exist
-          deletes **every contact in the database**. Reseed afterwards.
+        * Deleting an existing contact returns **200** with an empty JSON
+          object `{}`.
+        * A well-formed id that does not exist returns **404** and leaves all
+          contacts unchanged.
       parameters:
         - name: usernameOrContactId
           in: path
@@ -609,6 +610,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/EmptyObject'
               example: {}
+        '404':
+          description: No contact exists with this id; no contacts are changed.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Not Found
         '401':
           $ref: '#/components/responses/Unauthorized'
         '422':

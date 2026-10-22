@@ -95,6 +95,8 @@ API on the same origin. The spec lists two servers:
   (`ValidationFailed` 422, `Unauthorized` 401, `ServerError`).
 - **Reality, not wishes:** the spec documents what the server actually does, including known defects
   (with a KI reference). Planned endpoints are marked `x-status: planned`.
+- `DELETE /contacts/{contactId}` returns `404` for a well-formed unknown ID and leaves contacts
+  unchanged (KI-01 fix); deleting an existing contact still returns `200` with `{}`.
 
 ## GraphQL notes
 

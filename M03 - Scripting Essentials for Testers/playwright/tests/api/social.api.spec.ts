@@ -38,6 +38,38 @@ test.describe("Contacts API", () => {
     const res = await social.deleteContact(api, contact.id);
     expect(res.status).toBe(200);
   });
+
+  test("DELETE /contacts/:contactId returns 404 for a deleted contact without deleting other contacts", async ({
+    api,
+    users,
+    db,
+  }) => {
+    const contact = await db.find("contacts");
+    const firstDelete = await social.deleteContact(api, contact.id);
+    expect(firstDelete.status).toBe(200);
+
+    const contactsBefore = await Promise.all(
+      users.map(async (user) => {
+        const res = await social.listContacts(api, user.username);
+        expect(res.status).toBe(200);
+        return { userId: user.id, contactIds: res.body.contacts.map(({ id }) => id).sort() };
+      }),
+    );
+
+    const repeatedDelete = await social.deleteContact(api, contact.id);
+    expect(repeatedDelete.status).toBe(404);
+
+    const contactsAfter = await Promise.all(
+      users.map(async (user) => {
+        const res = await social.listContacts(api, user.username);
+        expect(res.status).toBe(200);
+        return { userId: user.id, contactIds: res.body.contacts.map(({ id }) => id).sort() };
+      }),
+    );
+
+    expect(users).toHaveLength(5);
+    expect(contactsAfter).toEqual(contactsBefore);
+  });
 });
 
 test.describe("Likes API", () => {

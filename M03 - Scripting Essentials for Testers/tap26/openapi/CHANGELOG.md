@@ -9,3 +9,7 @@ Every change to `tap26/openapi/openapi.yaml` bumps `info.version` and gets an en
 - Documented-defects: actual behaviour of KI-01…KI-27 (see `tap26/knowledge/known-issues.md`), e.g. 500s instead of
   404s, plain-text `OK` bodies, password hashes in user objects.
 - Verified: 135 live checks across all operations; Redocly lint 0 errors (8 justified warnings).
+
+## 1.1.0 — 2026-10-22
+- Fixed: KI-01 — `DELETE /contacts/{contactId}` returns 404 for a well-formed unknown ID and does not change contacts.
+- Kept: deleting an existing contact returns 200 with an empty object.

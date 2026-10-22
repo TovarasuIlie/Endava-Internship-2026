@@ -43,3 +43,9 @@ Format: `## D-### Title` · Context · Decision · Consequences · Date · By. S
 - Decision: All generated reports go to tap26/reports/<type>/ (impact, bugs, manual, reviews, research, a11y, security, perf, test-plans, ux, ba, debug, data, doctor, e2e, retros). File names: <type>-<YYYYMMDD-HHmm>-<slug>.md or BUG-###-<slug>.md.
 - Consequences: n/a
 - Date: 2026-10-16 · By: tap-orchestrator
+
+## D-008 Unknown contact deletion returns 404
+- Context: KI-01 showed that DELETE /contacts/{id} with a well-formed unknown ID deleted every contact; the pre-fix OpenAPI documented 200 for deletion.
+- Decision: Return 404 Not Found for a valid but unknown contact ID, without changing contacts; keep 200 {} for a successful deletion.
+- Consequences: n/a
+- Date: 2026-10-22 · By: tap-orchestrator

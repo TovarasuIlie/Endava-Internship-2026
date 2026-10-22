@@ -4,8 +4,9 @@ Purpose: verified defects and surprising behaviours in the RWA backend — a rea
 bug reports, security exercises, negative tests and "fix it" labs. The app is a demo; these are
 **not** fixed upstream. Per decision D-005, tests assert the **correct** behaviour and are marked
 `test.fail(true, "KI-xx: …")` until a lab fixes the code (reference: KI-33 in `playwright/tests/ui/mocked-states.spec.ts`).
-Last verified: 2026-10-16 against the running API (contract-guardian verification run, 35 operations,
-135 checks). The OpenAPI spec (`tap26/openapi/openapi.yaml`) documents the *actual* behaviour.
+Last verified: KI-01 fix checked against the running API on 2026-10-22; remaining entries last verified
+2026-10-16 (contract-guardian verification run, 35 operations, 135 checks). The OpenAPI spec
+(`tap26/openapi/openapi.yaml`) documents the *actual* behaviour.
 
 Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `/tap-bug`, `/tap-security`,
 `/tap-new-test`, or a fix via `/tap-change-api`.
@@ -13,7 +14,7 @@ Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `
 ## Data integrity — unknown ids touch the wrong records
 | # | Behaviour | Sev | Lab idea |
 |---|---|---|---|
-| KI-01 | `DELETE /contacts/{id}` with a well-formed but unknown id deletes **every** contact | 🔴 | Write a failing API test, then fix `removeContactById` in `backend/database.ts` |
+| KI-01 | ✅ Fixed 2026-10-22: `DELETE /contacts/{id}` with a well-formed unknown id returns 404 without changing contacts | 🔴 | Regression: `playwright/tests/api/social.api.spec.ts` |
 | KI-02 | `PATCH /notifications/{id}` with an unknown id updates the **first** notification in the DB | 🔴 | Regression test + fix |
 | KI-03 | `PATCH /users/{id}` with an unknown id updates the **first** user | 🔴 | Regression test + fix |
 
@@ -79,6 +80,11 @@ Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `
 | A11Y-02 | `link-name`: links without accessible names on every screen (serious) | 🟠 | Add aria-labels; enforce `serious` in the a11y spec |
 | A11Y-03 | `list` / `listitem` structure violations on the feed and inner pages (serious) | 🟡 | |
 | A11Y-04 | `color-contrast` on the home feed (3 nodes desktop, 10 mobile) (serious) | 🟡 | ux-designer palette proposal |
+| A11Y-05 | Transaction and recipient avatar images lack text alternatives (`image-alt`, critical) on the home feed and new-transaction flow | 🔴 | Supply useful alt text or mark redundant avatars decorative |
+| A11Y-06 | Recipient `UserListItem` is a click-only list item and cannot be reached or selected by keyboard | 🟠 | Use a semantic keyboard-operable control |
+| A11Y-07 | Temporary mobile navigation drawer does not close on Escape and does not return focus to its trigger | 🟠 | Wire Drawer `onClose` to state and restore focus |
+| A11Y-08 | Home feed overflows horizontally at 320 CSS px (24 px overflow; reflow check) | 🟡 | Constrain feed layout to viewport width |
+| A11Y-09 | Closing date/amount filter popovers with Escape leaves focus on `BODY` instead of returning to the trigger | 🟡 | Restore focus to the opening filter chip |
 
 ## Test-suite issues (kept on purpose as exercises)
 | # | Behaviour | Used in |

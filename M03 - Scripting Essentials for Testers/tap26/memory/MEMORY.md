@@ -37,11 +37,16 @@
 - tap-change-ui: add ui-tablet project at 500x800 (G-14) — done (2026-10-22)
 
 ## Recent decisions
-- D-003 TAP26 orchestration model — The main chat follows the orchestrator protocol in CLAUDE.md and delegates to specialists; the `tap-orchestrator` subagent handles multi-step requests; only orchestrator, qa-lead and e2e-architect may delegate further (depth ≤ 3).
-- D-004 Node-only, zero-dependency tooling for scripts and hooks — All TAP26 scripts and hooks are dependency-free Node ESM (.mjs); Swagger UI assets load from a pinned CDN.
-- D-005 Known API defects in tests — OpenAPI documents ACTUAL behaviour. Tests assert the CORRECT behaviour and are marked test.fail(true, 'KI-xx: <summary>') (new defects: 'BUG-###'), so the suite stays green and the test flips to an unexpected pass when the defect is fixed — then remove test.fail and update the KI row.
-- D-006 End-to-end journeys location — Journeys live in playwright/tests/e2e/*.e2e.spec.ts and run in a dedicated 'e2e' Playwright project (desktop viewport); tag with { tag: ['@e2e'] } and one test.step per journey step.
-- D-007 Report locations — All generated reports go to tap26/reports/<type>/ (impact, bugs, manual, reviews, research, a11y, security, perf, test-plans, ux, ba, debug, data, doctor, e2e, retros). File names: <type>-<YYYYMMDD-HHmm>-<slug>.md or BUG-###-<slug>.md.
+- D-003 TAP26 orchestration model
+ — The main chat follows the orchestrator protocol in CLAUDE.md and delegates to specialists; the `tap-orchestrator` subagent handles multi-step requests; only orchestrator, qa-lead and e2e-architect may delegate further (depth ≤ 3).
+- D-004 Node-only, zero-dependency tooling for scripts and hooks
+ — All TAP26 scripts and hooks are dependency-free Node ESM (.mjs); Swagger UI assets load from a pinned CDN.
+- D-005 Known API defects in tests
+ — OpenAPI documents ACTUAL behaviour. Tests assert the CORRECT behaviour and are marked test.fail(true, 'KI-xx: <summary>') (new defects: 'BUG-###'), so the suite stays green and the test flips to an unexpected pass when the defect is fixed — then remove test.fail and update the KI row.
+- D-006 End-to-end journeys location
+ — Journeys live in playwright/tests/e2e/*.e2e.spec.ts and run in a dedicated 'e2e' Playwright project (desktop viewport); tag with { tag: ['@e2e'] } and one test.step per journey step.
+- D-007 Report locations
+ — All generated reports go to tap26/reports/<type>/ (impact, bugs, manual, reviews, research, a11y, security, perf, test-plans, ux, ba, debug, data, doctor, e2e, retros). File names: <type>-<YYYYMMDD-HHmm>-<slug>.md or BUG-###-<slug>.md.
 
 ## Recent learnings
 - L-002 Clicking "Sign Up" can be swallowed by blur validation — Retry the navigation click until the URL changes (`openSignUp` uses `expect(...).toPass()`), never add hard waits.
