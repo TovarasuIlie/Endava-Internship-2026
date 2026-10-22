@@ -71,7 +71,7 @@ Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `
 | KI-31 | "Transaction Submitted!" and step 3 render before the API responds; a failed payment never shows an error | 🟠 | Stub POST /transactions → 500 and assert an error is shown (test.fail) |
 | KI-32 | Deleting your only bank account does not bring back the onboarding dialog | 🟡 | UX discussion + UI test |
 
-## UI behaviour & accessibility (found by mock-smith / axe, 2026-10-16)
+## UI behaviour & accessibility (axe baseline 2026-10-16; core-journey audit 2026-10-22)
 | # | Behaviour | Sev | Lab idea |
 |---|---|---|---|
 | KI-33 | A 500 on the public feed renders the same "No Transactions" empty state as an empty feed — no error message (D-005 reference test: `mocked-states.spec.ts` › "tells the user when the public feed fails to load (KI-33)" with `test.fail`) | 🟠 | UX spec for error states → fe-dev change → flip the test |
@@ -79,6 +79,11 @@ Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `
 | A11Y-02 | `link-name`: links without accessible names on every screen (serious) | 🟠 | Add aria-labels; enforce `serious` in the a11y spec |
 | A11Y-03 | `list` / `listitem` structure violations on the feed and inner pages (serious) | 🟡 | |
 | A11Y-04 | `color-contrast` on the home feed (3 nodes desktop, 10 mobile) (serious) | 🟡 | ux-designer palette proposal |
+| A11Y-05 | Transaction and recipient avatar images lack text alternatives (`image-alt`, critical) on the home feed and new-transaction flow | 🔴 | Supply useful alt text or mark redundant avatars decorative |
+| A11Y-06 | Recipient `UserListItem` is a click-only list item and cannot be reached or selected by keyboard | 🟠 | Use a semantic keyboard-operable control |
+| A11Y-07 | Temporary mobile navigation drawer does not close on Escape and does not return focus to its trigger | 🟠 | Wire Drawer `onClose` to state and restore focus |
+| A11Y-08 | Home feed overflows horizontally at 320 CSS px (24 px overflow; reflow check) | 🟡 | Constrain feed layout to viewport width |
+| A11Y-09 | Closing date/amount filter popovers with Escape leaves focus on `BODY` instead of returning to the trigger | 🟡 | Restore focus to the opening filter chip |
 
 ## Test-suite issues (kept on purpose as exercises)
 | # | Behaviour | Used in |
