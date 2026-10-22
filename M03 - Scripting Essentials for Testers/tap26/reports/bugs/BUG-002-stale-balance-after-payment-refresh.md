@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | confirmed |
+| Status | fixed — verified 2026-10-22 |
 | Severity | major — Bob sees an incorrect financial balance after a completed payment |
 | Priority | P2 — balance display needs to refresh to reflect completed transactions |
 | Area | Authenticated profile balance / `authMachine.ts` |
 | Reported by / date | manual-tester / 2026-10-22 |
-| Related | Planned KI-34; KI-30 is related but distinct (see Notes) |
+| Related | KI-34 fixed 2026-10-22; KI-30 is related but distinct (see Notes) |
 | Reproduction rate | 2/2 |
 
 ## Environment
@@ -29,10 +29,11 @@
 Bob's profile balance updates from $930.26 to $997.26 after reload, reflecting the completed $67 payment — source: the stated scenario expectation.
 
 ## Actual result
-Bob's profile continues to show the pre-payment balance after reload. In both attempts, Alice's `POST /transactions` returned 200; the payment was persisted as complete for $67 with Alice's and Bob's IDs, and Bob's DB balance delta was exactly +6,700 cents. Bob's UI nevertheless remained at the old balance.
+Before the fix, Bob's profile continued to show the pre-payment balance after reload. In both attempts, Alice's `POST /transactions` returned 200; the payment was persisted as complete for $67 with Alice's and Bob's IDs, and Bob's DB balance delta was exactly +6,700 cents. Bob's UI nevertheless remained at the old balance.
 
 ## Evidence
-- Two initial `--repeat-each=2` attempts reproduced the stale balance; the initial test wait timed out because it waited for `GET /checkAuth`, which the app does not call during localStorage auth-state restoration. After removing that invalid wait and retaining the correct balance assertion, the focused expected-failure test reproduced KI-34 twice (Playwright: 2 passed as expected failures). The latest Playwright JSON report records expected `$997.26`, received `$930.26` at `data-test="sidenav-user-balance"` after reload.
+- Before the fix, two attempts reproduced the stale balance. An initial wait for `GET /checkAuth` timed out because the old localStorage auth-state restoration did not issue that request; the stale value was then verified while retaining the correct balance assertion.
+- After the fix, restoring a session-backed authorized state sends the existing `REFRESH` event, which invokes `GET /checkAuth` and replaces the cached profile. The focused Alice/Bob E2E retained its request wait and exact balance assertion and passed twice (`--repeat-each=2`).
 - Debugger trace review confirmed the restoration path; the absence of a `/checkAuth` call is based on that review, not solely on a network assertion.
 - Screenshot / trace: no saved artifact path recorded. Scenario reference: `playwright/tests/e2e/bob-sees-alice-payment.e2e.spec.ts`.
 
@@ -42,10 +43,11 @@ Bob is shown an inaccurate balance after a completed incoming payment, potential
 ## Root cause (confirmed by debugger)
 - Location: `src/machines/authMachine.ts`, approximately lines 265–277; profile refresh at approximately line 182.
 - Explanation: Auth restoration uses cached localStorage state and does not refresh the user profile. `getUserProfile` / `checkAuth` runs on the refresh path, which this restoration does not take.
-- Proposed fix: refresh the authenticated user profile during cached-state restoration (or otherwise ensure a full page reload refreshes the balance).
+- Fix applied in `src/machines/authMachine.ts`: after restoring an authorized session profile, send `REFRESH` to use the existing profile-refresh flow. Provider-backed profiles are not refreshed through the Passport-session endpoint; legacy persisted session profiles are recognized by their numeric `balance`. `yarn types` and Playwright typecheck pass; the focused E2E passed 2/2 after the final change.
+- The same session check also corrects KI-30: an expired server session now transitions to unauthorized and redirects to `/signin`; the focused UI regression in `playwright/tests/ui/auth.spec.ts` passed twice.
 
 ## Regression test
-- Expected-failure regression: `playwright/tests/e2e/bob-sees-alice-payment.e2e.spec.ts` › “Bob sees Alice's $67 payment after refreshing”, marked `test.fail(true, "KI-34: Bob's cached profile balance is stale after a page reload")` until fixed. Focused E2E run: 2/2 expected failures; typecheck passes.
+- Passing regression: `playwright/tests/e2e/bob-sees-alice-payment.e2e.spec.ts` › “Bob sees Alice's $67 payment after refreshing”. The correct balance assertion remains active without `test.fail`; the test waits for `GET /checkAuth`, now triggered by restored-state refresh. Focused E2E run: 2/2 passed.
 
 ## Notes
 KI-30 concerns the UI appearing logged in after the server session is lost (for example, after an API restart); this report concerns stale profile data after a valid completed payment and a full page reload. The two issues share cached auth-state restoration but are distinct behaviours.

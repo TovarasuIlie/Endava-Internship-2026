@@ -78,3 +78,10 @@ Format: `## L-### Title` · Tags · What happened · Lesson · Applies to · Dat
 - Lesson: Start servers with node <bin> directly, or find the listener by port/args (ps -eo pid,args | grep '[v]ite') and kill that PID
 - Applies to: env-ops,debugger
 - Date: 2026-10-16 · Source: mock-smith
+
+## L-012 Verify expected network behavior before response waits
+- Tags: playwright,network,e2e
+- What happened: The Bob reload restored cached XState auth and did not request GET /checkAuth, so the first E2E waiter timed out.
+- Lesson: When a browser flow may use cached state, inspect the actual request flow before waiting for a response; synchronize only on a request the flow triggers and retain the outcome assertion.
+- Applies to: e2e-architect,ui-automation,debugger
+- Date: 2026-10-22 · Source: knowledge-curator

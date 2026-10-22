@@ -49,3 +49,9 @@ Format: `## D-### Title` · Context · Decision · Consequences · Date · By. S
 - Decision: Return 404 Not Found for a valid but unknown contact ID, without changing contacts; keep 200 {} for a successful deletion.
 - Consequences: n/a
 - Date: 2026-10-22 · By: tap-orchestrator
+
+## D-009 Dedicated tablet Playwright project
+- Context: G-14 requires validation at 500x800 without changing desktop or mobile viewports.
+- Decision: Use a separate ui-tablet Playwright project at 500x800, reusing the UI test set and desktop Chromium configuration.
+- Consequences: Tablet coverage runs independently; existing API, desktop, and mobile project configurations remain unchanged.
+- Date: 2026-10-22 · By: knowledge-curator

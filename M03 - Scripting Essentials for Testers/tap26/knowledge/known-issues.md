@@ -4,8 +4,8 @@ Purpose: verified defects and surprising behaviours in the RWA backend — a rea
 bug reports, security exercises, negative tests and "fix it" labs. The app is a demo; these are
 **not** fixed upstream. Per decision D-005, tests assert the **correct** behaviour and are marked
 `test.fail(true, "KI-xx: …")` until a lab fixes the code (reference: KI-33 in `playwright/tests/ui/mocked-states.spec.ts`).
-Last verified: KI-01 fix checked against the running API on 2026-10-22; remaining entries last verified
-2026-10-16 (contract-guardian verification run, 35 operations, 135 checks). The OpenAPI spec
+Last verified: KI-01 was checked against the running API and KI-30/KI-34 auth behavior against the UI/E2E on 2026-10-22;
+remaining entries last verified 2026-10-16 (contract-guardian verification run, 35 operations, 135 checks). The OpenAPI spec
 (`tap26/openapi/openapi.yaml`) documents the *actual* behaviour.
 
 Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `/tap-bug`, `/tap-security`,
@@ -67,7 +67,7 @@ Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `
 |---|---|---|---|
 | KI-28 | "Everyone" feed with the default page size never shows public items 5–9: page 1 = 5 contact items + public 0–4, page 2 starts at public item 10 | 🟠 | Pagination test that collects ids across pages |
 | KI-29 | Privacy levels are not enforced in feeds: "Friends" and page 1 of "Everyone" include contacts' `private` transactions; the `contacts` level is never used | 🔴 | BA writes privacy rules as Gherkin; security + API tests |
-| KI-30 | The UI can look logged in while the server session is gone (auth state cached in localStorage, sessions in API memory): after an API restart you see the layout with empty lists and no redirect to sign-in | 🟠 | UI test: clear cookies → expect redirect to /signin |
+| KI-30 | ✅ Fixed 2026-10-22: when a restored session has expired, `/checkAuth` returns 401 and the app clears the cached user and redirects to `/signin`; regression in `playwright/tests/ui/auth.spec.ts` | 🟠 | Regression: stub `/checkAuth` as 401, reload, assert redirect to `/signin` |
 | KI-31 | "Transaction Submitted!" and step 3 render before the API responds; a failed payment never shows an error | 🟠 | Stub POST /transactions → 500 and assert an error is shown (test.fail) |
 | KI-32 | Deleting your only bank account does not bring back the onboarding dialog | 🟡 | UX discussion + UI test |
 
@@ -75,7 +75,7 @@ Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `
 | # | Behaviour | Sev | Lab idea |
 |---|---|---|---|
 | KI-33 | A 500 on the public feed renders the same "No Transactions" empty state as an empty feed — no error message (D-005 reference test: `mocked-states.spec.ts` › "tells the user when the public feed fails to load (KI-33)" with `test.fail`) | 🟠 | UX spec for error states → fe-dev change → flip the test |
-| KI-34 | After another user completes a payment, a full page reload restores the stale cached auth profile; the recipient's displayed balance does not update until profile refresh | 🟠 | See `BUG-002`; refresh the profile on reload and keep the check in the Bob/Alice E2E journey |
+| KI-34 | ✅ Fixed 2026-10-22: restoring a session-backed authorized profile refreshes the user on reload; provider-backed profiles are left unchanged. See `BUG-002` and the passing Bob/Alice E2E regression | 🟠 | Regression: `playwright/tests/e2e/bob-sees-alice-payment.e2e.spec.ts` |
 | A11Y-01 | Home feed: react-virtualized renders `role="grid"`/`rowgroup` without `role="row"` children (axe `aria-required-children`, **critical**) — allowlisted as `KNOWN_CRITICAL` in `playwright/tests/ui/a11y.spec.ts` | 🔴 | `/tap-a11y` + fe-dev fix, then remove from the allowlist |
 | A11Y-02 | `link-name`: links without accessible names on every screen (serious) | 🟠 | Add aria-labels; enforce `serious` in the a11y spec |
 | A11Y-03 | `list` / `listitem` structure violations on the feed and inner pages (serious) | 🟡 | |

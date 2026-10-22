@@ -137,7 +137,7 @@ Each line names a concrete, checkable target. Write the test so it asserts the *
 | G-09 | GraphQL error cases: unauthenticated (KI-09), invalid variables, missing query (KI-27) | not covered at all | API tests on `/graphql` |
 | G-10 | Self-like notifications (KI-24), double like via API | notification noise | API: like your own transaction → count notifications |
 | G-11 | Optimistic "Transaction Submitted!" and step 3 when `POST /transactions` fails | UX error handling | UI: `stubApi(page, {method:"POST", path:"/transactions"}, {...}, 500)` → expect an error message (will fail today) |
-| G-12 | Stale `localStorage.authState` after the server session is lost (API restart, cookie cleared) | blank feeds and no redirect | UI: clear cookies, reload, expect `/signin` |
+| G-12 | Expired server session with stale `localStorage.authState` (KI-30) | clears cached session and redirects to sign-in | UI: `auth.spec.ts` stubs `GET /checkAuth` → 401 on reload and asserts `/signin` |
 | G-13 | Unknown route while logged in (blank page) and unknown transaction id (blank detail) | missing 404 UX | UI |
 | G-14 | Viewports **414–599 px**: app layout is mobile, tests' `isMobile()` says desktop | the responsive breakpoint is untested | add a `ui-tablet` project (e.g. 500×800) or a param test |
 | G-15 | Accessibility | no a11y tests exist | `@axe-core/playwright` scan per screen (`/tap-a11y`) |
