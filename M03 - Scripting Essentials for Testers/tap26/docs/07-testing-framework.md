@@ -58,13 +58,13 @@ sequenceDiagram
     API-->>UI: Successful transaction response
     UI-->>Alice: Transaction Submitted!
     Bob->>UI: Refresh his authenticated session
-    Note over UI: Restores cached auth profile; no fresh profile request
-    UI-->>Bob: Stale cached balance is displayed
-    Test->>DB: Verify completed payment and updated balances
+    UI->>API: GET /checkAuth and load balance
+    API->>DB: Read Bob's updated balance
+    API-->>UI: Balance increased by $67
+    UI->>DB: Test verifies sender, recipient, amount and complete status
 ```
 
-The journey currently asserts the expected refreshed balance and is marked as an expected failure
-for **KI-34** while the app restores stale cached profile data. Run it twice to check repeatability:
+Run this journey twice to check repeatability:
 
 ```bash
 npm --prefix playwright run test:e2e -- --grep "Bob sees Alice" --repeat-each=2

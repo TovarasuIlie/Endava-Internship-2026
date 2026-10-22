@@ -7,12 +7,13 @@ import {
   goToSideNav,
   loginByXstate,
   waitForApi,
-  transformApi,
+  stubApi,
   typeThenClear,
   fillAndBlur,
   touch,
 } from "@ui";
 import type { User } from "@models";
+import { buildBankAccount, buildList } from "@mocks";
 
 const listBankAccounts = { method: "POST", path: "/graphql", graphqlOperation: "ListBankAccount" } as const;
 
@@ -91,19 +92,19 @@ test.describe("Bank Accounts", () => {
     await expect(bySelLike(page, "list-item").first()).toContainText("Deleted");
   });
 
-  // Same TODO as upstream: the onboarding assertion can go once users get an "onboarded" flag.
-  test("renders an empty bank account list state with onboarding modal", async ({ page }) => {
-    await transformApi<{ data: { listBankAccount: unknown[] } }>(page, listBankAccounts, (body) => ({
-      ...body,
-      data: { ...body.data, listBankAccount: [] },
-    }));
+  test("shows the empty bank accounts state when no accounts are returned", async ({ page }) => {
+    const accounts = buildList(buildBankAccount, 0);
+    await stubApi(page, listBankAccounts, { data: { listBankAccount: accounts } });
 
     const listed = waitForApi(page, listBankAccounts);
     await page.goto("/bankaccounts");
-    await listed;
+    const response = await listed;
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toEqual({ data: { listBankAccount: [] } });
 
     await expect(bySel(page, "bankaccount-list")).toHaveCount(0);
-    await expect(bySel(page, "empty-list-header")).toContainText("No Bank Accounts");
+    await expect(bySel(page, "empty-list-header")).toBeVisible();
+    await expect(bySel(page, "empty-list-header")).toHaveText("No Bank Accounts");
     await expect(bySel(page, "user-onboarding-dialog")).toBeVisible();
     await expect(bySel(page, "nav-top-notifications-count")).toBeAttached();
   });

@@ -1,5 +1,5 @@
 import { test, expect } from "@fixtures/ui";
-import { bySel, feedMatcher, loginByXstate, transactionItems, waitForApi, waitForListLoaded } from "@ui";
+import { bySel, feedMatcher, loginByXstate, stubApi, transactionItems, waitForApi, waitForListLoaded } from "@ui";
 import {
   buildBankAccount,
   buildList,
@@ -107,13 +107,16 @@ test.describe("Mocked UI states", () => {
   });
 
   test.describe("bank accounts (GraphQL)", () => {
-    test("shows the empty state and onboarding when ListBankAccount returns []", async ({ page, users }) => {
-      await stubBankAccounts(page, []);
+    test("shows the empty state and onboarding when ListBankAccount returns an empty list", async ({ page, users }) => {
+      const accounts = buildList(buildBankAccount, 0);
+      await stubApi(page, listBankAccountsMatcher, { data: { listBankAccount: accounts } });
       await loginByXstate(page, users[0].username);
 
       const listed = waitForApi(page, listBankAccountsMatcher);
       await page.goto("/bankaccounts");
-      await listed;
+      const response = await listed;
+      expect(response.status()).toBe(200);
+      expect(await response.json()).toEqual({ data: { listBankAccount: [] } });
 
       await expect(emptyHeader(page)).toContainText("No Bank Accounts");
       await expect(bySel(page, "bankaccount-list")).toHaveCount(0);
