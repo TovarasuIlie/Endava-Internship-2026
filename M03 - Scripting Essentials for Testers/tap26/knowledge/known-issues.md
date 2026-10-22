@@ -71,10 +71,11 @@ Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `
 | KI-31 | "Transaction Submitted!" and step 3 render before the API responds; a failed payment never shows an error | 🟠 | Stub POST /transactions → 500 and assert an error is shown (test.fail) |
 | KI-32 | Deleting your only bank account does not bring back the onboarding dialog | 🟡 | UX discussion + UI test |
 
-## UI behaviour & accessibility (axe baseline 2026-10-16; core-journey audit 2026-10-22)
+## UI behaviour & accessibility (axe baseline 2026-10-16; updated 2026-10-22)
 | # | Behaviour | Sev | Lab idea |
 |---|---|---|---|
 | KI-33 | A 500 on the public feed renders the same "No Transactions" empty state as an empty feed — no error message (D-005 reference test: `mocked-states.spec.ts` › "tells the user when the public feed fails to load (KI-33)" with `test.fail`) | 🟠 | UX spec for error states → fe-dev change → flip the test |
+| KI-34 | After another user completes a payment, a full page reload restores the stale cached auth profile; the recipient's displayed balance does not update until profile refresh | 🟠 | See `BUG-002`; refresh the profile on reload and keep the check in the Bob/Alice E2E journey |
 | A11Y-01 | Home feed: react-virtualized renders `role="grid"`/`rowgroup` without `role="row"` children (axe `aria-required-children`, **critical**) — allowlisted as `KNOWN_CRITICAL` in `playwright/tests/ui/a11y.spec.ts` | 🔴 | `/tap-a11y` + fe-dev fix, then remove from the allowlist |
 | A11Y-02 | `link-name`: links without accessible names on every screen (serious) | 🟠 | Add aria-labels; enforce `serious` in the a11y spec |
 | A11Y-03 | `list` / `listitem` structure violations on the feed and inner pages (serious) | 🟡 | |

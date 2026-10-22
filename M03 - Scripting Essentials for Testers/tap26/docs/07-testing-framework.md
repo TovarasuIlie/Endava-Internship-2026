@@ -37,6 +37,40 @@ Imports use path aliases: `@api`, `@ui`, `@fixtures/api`, `@fixtures/ui`, `@util
 `workers: 1` and `fullyParallel: false` because all tests share **one JSON database** that is re-seeded
 before every test.
 
+### Example: Alice pays Bob
+
+[`bob-sees-alice-payment.e2e.spec.ts`](../../playwright/tests/e2e/bob-sees-alice-payment.e2e.spec.ts)
+uses separate browser contexts for Alice and Bob. Alice sends $67 through the UI; Bob refreshes and
+sees the balance increase, while the test verifies the completed transaction in the database.
+
+```mermaid
+sequenceDiagram
+    actor Alice
+    actor Bob
+    participant UI as Isolated browser contexts
+    participant API
+    participant DB as Seeded database
+    Alice->>UI: Sign in and send Bob $67
+    UI->>API: POST /transactions
+    API->>DB: Create completed payment and update balances
+    API-->>UI: Successful transaction response
+    UI-->>Alice: Transaction Submitted!
+    Bob->>UI: Refresh his authenticated session
+    UI->>API: GET /checkAuth and load balance
+    API->>DB: Read Bob's updated balance
+    API-->>UI: Balance increased by $67
+    UI->>DB: Test verifies sender, recipient, amount and complete status
+```
+
+Run this journey twice to check repeatability:
+
+```bash
+npm --prefix playwright run test:e2e -- --grep "Bob sees Alice" --repeat-each=2
+```
+
+It runs in the existing `e2e` project with `@e2e` and `@regression` tags. As with every Playwright
+test, its auto-seed fixture resets `data/database.json` before the journey.
+
 ## Fixtures — the heart of the framework
 
 Fixtures replace Cypress's `beforeEach` + `let ctx = {}`. A fixture builds a value, hands it to the
