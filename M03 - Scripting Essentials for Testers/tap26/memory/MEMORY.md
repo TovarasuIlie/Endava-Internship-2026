@@ -34,14 +34,19 @@
 - See CLAUDE.md and tap26/knowledge/conventions.md
 
 ## Active work
-- (none recorded — use `memory.mjs set-active`)
+- tap-change-api: fix KI-01 unknown DELETE /contacts/{contactId} — done (2026-10-22)
 
 ## Recent decisions
-- D-003 TAP26 orchestration model — The main chat follows the orchestrator protocol in CLAUDE.md and delegates to specialists; the `tap-orchestrator` subagent handles multi-step requests; only orchestrator, qa-lead and e2e-architect may delegate further (depth ≤ 3).
-- D-004 Node-only, zero-dependency tooling for scripts and hooks — All TAP26 scripts and hooks are dependency-free Node ESM (.mjs); Swagger UI assets load from a pinned CDN.
-- D-005 Known API defects in tests — OpenAPI documents ACTUAL behaviour. Tests assert the CORRECT behaviour and are marked test.fail(true, 'KI-xx: <summary>') (new defects: 'BUG-###'), so the suite stays green and the test flips to an unexpected pass when the defect is fixed — then remove test.fail and update the KI row.
-- D-006 End-to-end journeys location — Journeys live in playwright/tests/e2e/*.e2e.spec.ts and run in a dedicated 'e2e' Playwright project (desktop viewport); tag with { tag: ['@e2e'] } and one test.step per journey step.
-- D-007 Report locations — All generated reports go to tap26/reports/<type>/ (impact, bugs, manual, reviews, research, a11y, security, perf, test-plans, ux, ba, debug, data, doctor, e2e, retros). File names: <type>-<YYYYMMDD-HHmm>-<slug>.md or BUG-###-<slug>.md.
+- D-003 TAP26 orchestration model
+ — The main chat follows the orchestrator protocol in CLAUDE.md and delegates to specialists; the `tap-orchestrator` subagent handles multi-step requests; only orchestrator, qa-lead and e2e-architect may delegate further (depth ≤ 3).
+- D-004 Node-only, zero-dependency tooling for scripts and hooks
+ — All TAP26 scripts and hooks are dependency-free Node ESM (.mjs); Swagger UI assets load from a pinned CDN.
+- D-005 Known API defects in tests
+ — OpenAPI documents ACTUAL behaviour. Tests assert the CORRECT behaviour and are marked test.fail(true, 'KI-xx: <summary>') (new defects: 'BUG-###'), so the suite stays green and the test flips to an unexpected pass when the defect is fixed — then remove test.fail and update the KI row.
+- D-006 End-to-end journeys location
+ — Journeys live in playwright/tests/e2e/*.e2e.spec.ts and run in a dedicated 'e2e' Playwright project (desktop viewport); tag with { tag: ['@e2e'] } and one test.step per journey step.
+- D-007 Report locations
+ — All generated reports go to tap26/reports/<type>/ (impact, bugs, manual, reviews, research, a11y, security, perf, test-plans, ux, ba, debug, data, doctor, e2e, retros). File names: <type>-<YYYYMMDD-HHmm>-<slug>.md or BUG-###-<slug>.md.
 
 ## Recent learnings
 - L-002 Clicking "Sign Up" can be swallowed by blur validation — Retry the navigation click until the URL changes (`openSignUp` uses `expect(...).toPass()`), never add hard waits.
@@ -56,7 +61,9 @@
 - L-011 Killing npx does not stop the server it started — Start servers with node <bin> directly, or find the listener by port/args (ps -eo pid,args | grep '[v]ite') and kill that PID
 
 ## Recent app changes (ledger)
-- (none yet)
+- 2026-10-22 13:47 | backend/contact-routes.ts | Return 404 when deleting a contact with a valid unknown ID | be-dev
+- 2026-10-22 13:47 | backend/database.ts | Guard contact removal against missing IDs to prevent deleting all contacts | be-dev
+- 2026-10-22 14:00 | playwright/tests/api/social.api.spec.ts | Add KI-01 contact deletion regression coverage | api-automation
 
 ## Open questions
 - [ ] Q-001 Should the Cypress suite be retired once the Playwright suite covers everything, or kept as a comparison for students? (asked by tap26-setup, 2026-10-16)

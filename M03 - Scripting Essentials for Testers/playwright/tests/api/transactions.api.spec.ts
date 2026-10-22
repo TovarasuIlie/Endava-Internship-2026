@@ -1,5 +1,5 @@
 import { test as base, expect } from "@fixtures/api";
-import { transactions, errorsOf } from "@api";
+import { auth, transactions, errorsOf } from "@api";
 import { randomAmount } from "@utils/money";
 
 const { involvesUser } = transactions;
@@ -98,6 +98,54 @@ test.describe("Transactions API", () => {
     test("updates a transaction", async ({ api, seedIds }) => {
       const res = await transactions.updateTransaction(api, seedIds.transactionId, { requestStatus: "rejected" });
       expect(res.status).toBe(204);
+    });
+
+    test("rejecting a money request does not change either user's balance (KI-05)", async ({
+      api,
+      db,
+      me,
+      users,
+      seedIds,
+    }) => {
+      test.fail(
+        true,
+        "KI-05: PATCH /transactions/{id} doesn't check that the caller is the request's receiver. Sending requestStatus: rejected still moves the money and completes the request, and it does so again on every repeat call",
+      );
+
+      // Arrange: create a pending request from the logged-in requester to another seeded user.
+      const receiver = users[1];
+      const requestRes = await transactions.createTransaction(api, {
+        transactionType: "request",
+        source: seedIds.bankAccountId,
+        receiverId: receiver.id,
+        description: `Balance check request: ${me.id} to ${receiver.id}`,
+        amount: 1,
+        privacyLevel: "public",
+      });
+      expect(requestRes.status).toBe(200);
+      expect(requestRes.body.transaction.requestStatus).toBe("pending");
+
+      const [requesterBefore, receiverBefore] = await Promise.all([
+        db.find("users", { id: me.id }),
+        db.find("users", { id: receiver.id }),
+      ]);
+
+      const loginRes = await auth.login(api, receiver.username);
+      expect(loginRes.status).toBe(200);
+
+      // Act: reject the request as its receiver.
+      const rejectRes = await transactions.updateTransaction(api, requestRes.body.transaction.id, {
+        requestStatus: "rejected",
+      });
+      expect(rejectRes.status).toBe(204);
+
+      // Assert: neither participant's stored balance changed.
+      const [requesterAfter, receiverAfter] = await Promise.all([
+        db.find("users", { id: me.id }),
+        db.find("users", { id: receiver.id }),
+      ]);
+      expect(requesterAfter.balance).toBe(requesterBefore.balance);
+      expect(receiverAfter.balance).toBe(receiverBefore.balance);
     });
 
     test("errors when an invalid field sent", async ({ api, seedIds }) => {

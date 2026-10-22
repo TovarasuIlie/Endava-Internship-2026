@@ -4,8 +4,9 @@ Purpose: verified defects and surprising behaviours in the RWA backend — a rea
 bug reports, security exercises, negative tests and "fix it" labs. The app is a demo; these are
 **not** fixed upstream. Per decision D-005, tests assert the **correct** behaviour and are marked
 `test.fail(true, "KI-xx: …")` until a lab fixes the code (reference: KI-33 in `playwright/tests/ui/mocked-states.spec.ts`).
-Last verified: 2026-10-16 against the running API (contract-guardian verification run, 35 operations,
-135 checks). The OpenAPI spec (`tap26/openapi/openapi.yaml`) documents the *actual* behaviour.
+Last verified: KI-01 fix checked against the running API on 2026-10-22; remaining entries last verified
+2026-10-16 (contract-guardian verification run, 35 operations, 135 checks). The OpenAPI spec
+(`tap26/openapi/openapi.yaml`) documents the *actual* behaviour.
 
 Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `/tap-bug`, `/tap-security`,
 `/tap-new-test`, or a fix via `/tap-change-api`.
@@ -13,7 +14,7 @@ Severity: 🔴 high · 🟠 medium · 🟡 low. "Lab idea" = good exercise for `
 ## Data integrity — unknown ids touch the wrong records
 | # | Behaviour | Sev | Lab idea |
 |---|---|---|---|
-| KI-01 | `DELETE /contacts/{id}` with a well-formed but unknown id deletes **every** contact | 🔴 | Write a failing API test, then fix `removeContactById` in `backend/database.ts` |
+| KI-01 | ✅ Fixed 2026-10-22: `DELETE /contacts/{id}` with a well-formed unknown id returns 404 without changing contacts | 🔴 | Regression: `playwright/tests/api/social.api.spec.ts` |
 | KI-02 | `PATCH /notifications/{id}` with an unknown id updates the **first** notification in the DB | 🔴 | Regression test + fix |
 | KI-03 | `PATCH /users/{id}` with an unknown id updates the **first** user | 🔴 | Regression test + fix |
 

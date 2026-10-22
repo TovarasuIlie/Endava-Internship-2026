@@ -227,7 +227,12 @@ export const createContact = (contact: Contact) => {
 export const removeContactById = (contactId: string) => {
   const contact = getContactBy("id", contactId);
 
+  if (!contact) {
+    return false;
+  }
+
   db.get(CONTACT_TABLE).remove(contact).write();
+  return true;
 };
 
 export const createContactForUser = (userId: string, contactUserId: string) => {
