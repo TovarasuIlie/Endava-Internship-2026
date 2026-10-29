@@ -33,7 +33,10 @@ public class BrowserManager implements AutoCloseable {
     }
 
     public BrowserContext createContext() {
-        return browser.newContext();
+        return browser.newContext(
+                new Browser.NewContextOptions()
+                        .setBaseURL(ConfigManager.get("base.url"))
+        );
     }
 
     @Override

@@ -15,7 +15,7 @@ public class HomeTest extends BaseTest {
         LoginPage loginPage = new LoginPage();
         loginPage.init(page);
 
-        loginPage.openLoginPage(ConfigManager.get("base.url"));
+        page.navigate(ConfigManager.get("auth.login.url"));
 
         HomePage homePage = loginPage.login(
                 ConfigManager.get("login.username"),
